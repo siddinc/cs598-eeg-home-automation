@@ -128,4 +128,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-eeg_data
+cs598-eeg-data
