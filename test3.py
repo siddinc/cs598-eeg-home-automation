@@ -58,10 +58,10 @@ def read_csv(dataset):
         gt_labels.append(file_path.split("/")[3])
         df = pd.read_csv(file_path)
 
-        ts_tp9 =  df["TP9"].to_numpy()
+        ts_tp9 = df["TP9"].to_numpy()
         ts_tp10 = df["TP10"].to_numpy()
-        ts_af7 =  df["AF7"].to_numpy()
-        ts_af8 =  df["AF8"].to_numpy()
+        ts_af7 = df["AF7"].to_numpy()
+        ts_af8 = df["AF8"].to_numpy()
 
         batch[0, i, :] = ts_tp9[996:2899]
         batch[1, i, :] = ts_tp10[996:2899]
@@ -89,16 +89,22 @@ def train_model(x_train, y_train):
     model = search
 
     joblib.dump(
-        model, './models/model_RF_{}.pkl'.format(search.best_params_))
+        model, './models/model_RF_{}_{}.pkl'.format(search.best_params_, search.best_score_))
     return model
 
 
 def test_model(model, x_test, y_test):
     y_pred = model.predict(x_test)
     print(classification_report(y_test, y_pred,
-          target_names=["turn_on", "turn_off"]))
+          target_names=["turn_on", "turn_off"], zero_division=0))
     return y_pred
 
+def predict_model(model, x):
+  if len(x.shape) == 1:
+    x = np.expand_dims(x, axis=0)
+  
+  pred = model.predict(x)
+  return pred
 
 def get_metrics(y_test, y_pred):
     tp, tn, fp, fn = 0, 0, 0, 0
@@ -122,33 +128,23 @@ def get_metrics(y_test, y_pred):
     print("Recall: {}".format(recall))
     print("Accuracy: {}".format(accuracy))
     print("F-1 score: {}".format(f1_score))
-    return accuracy, f1_score
-
-
-def read_npy(dataset):
-    batch = np.zeros((50, 75, 100, 4), dtype=np.float64)
-    gt_labels = []
-    s = np.zeros((50, 7500*4))
-
-    for i, file_path in enumerate(dataset):
-        gt_labels.append(file_path.split("/")[3])
-        x = np.load(file_path)
-        batch[i] = x
-        s[i] = x.ravel()
-    return batch, s, gt_labels
 
 
 if __name__ == "__main__":
-    dataset = read_dataset("./cs598-eeg-data/data_v2/*/*")
+    dataset = read_dataset("./cs598-eeg-data/data_v3/*/*")
     ts_batch, ts_gt_labels = read_csv(dataset)
     x_train, x_test, y_train, y_test = train_test_split(np.column_stack(
         (ts_batch[0], ts_batch[1], ts_batch[2], ts_batch[3])), ts_gt_labels, test_size=0.3, random_state=42, shuffle=True)
 
-    model = train_model(x_train, y_train)
-    y_pred = test_model(model, x_test, y_test)
-    acc, f1 = get_metrics(y_test, y_pred)
-    model = joblib.load("./models/model_RF_{}_{}_{}".format(, acc,f1))
+    # model = train_model(x_train, y_train)
+    
+    model = joblib.load(
+        "./models/model_RF_{'rf__max_depth': 38, 'rf__n_estimators': 88}_0.8833333333333332.pkl")
+    # y_pred = test_model(model, x_test, y_test)
+    # get_metrics(y_test, y_pred)
 
-    confusion_matrix_output = confusion_matrix(y_test, y_pred)
-    plot_confusion_matrix_custom(confusion_matrix_output, classes=[
-        'turn_on', 'turn_off'], title='Confusion matrix')
+    # confusion_matrix_output = confusion_matrix(y_test, y_pred)
+    # plot_confusion_matrix_custom(confusion_matrix_output, classes=[
+    #                              'turn_on', 'turn_off'], title='Confusion matrix')
+    
+    pred = predict_model(model, x_test[5:9])
