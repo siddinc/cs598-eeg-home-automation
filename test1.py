@@ -41,8 +41,8 @@ def normalize_vec(vec):
 
 def plot_ts():
   # df_ton = pd.read_csv("../data_v2/turn_on/cy_1.csv")
-  df_toff1 = pd.read_csv("./cs598-eeg-data/data_v3/turn_on/cy_11.csv")
-  df_toff2 = pd.read_csv("./cs598-eeg-data/data_v3/turn_off/cy_11.csv")
+  df_toff1 = pd.read_csv("./cs598-eeg-data/data_v3/turn_on/cy_10.csv")
+  df_toff2 = pd.read_csv("./cs598-eeg-data/data_v3/turn_off/cy_10.csv")
   
   # ts_ton = df_ton["TP9"].to_numpy()
   ts_toff1 = min_max_scaling(df_toff1["TP9"].to_numpy())[996:2899]
@@ -54,8 +54,8 @@ def plot_ts():
   # plt.plot(ts_ton, label="turn on")
   fig, ax = plt.subplots(2,1)
   
-  ax[0].plot(ts_toff1, label="turn on", )
-  ax[1].plot(ts_toff2, label="turn off")
+  ax[0].plot(ts_toff1, label="turn on", c="green")
+  ax[1].plot(ts_toff2, label="turn off", c="red")
   
   plt.show()
   spec1 = get_spectrogram(ts_toff1, FS, NFFT, NOVERLAP, CMAP)
