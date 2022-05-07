@@ -1,0 +1,15 @@
+Total Params: 1,833
+Size: 1MB
+INIT_LR = 0.0001
+EPOCHS = 100
+BATCH_SIZE = 2
+Val Size: 0.15
+Test Size: 0.3
+          precision    recall  f1-score   support
+
+     turn_on       0.80      1.00      0.89         4
+    turn_off       1.00      0.75      0.86         4
+
+    accuracy                           0.88         8
+   macro avg       0.90      0.88      0.87         8
+weighted avg       0.90      0.88      0.87         8

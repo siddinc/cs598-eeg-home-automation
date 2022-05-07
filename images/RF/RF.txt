@@ -1,0 +1,16 @@
+Total Params: max-depth=38, n-estimators=88
+Size: 491KB
+K-fold: 10 for 100 iterations using RandomSearch
+              precision    recall  f1-score   support
+
+     turn_on       0.88      0.88      0.88         8
+    turn_off       0.86      0.86      0.86         7
+
+    accuracy                           0.87        15
+   macro avg       0.87      0.87      0.87        15
+weighted avg       0.87      0.87      0.87        15
+
+Precision: 0.8571428559183674
+Recall: 0.8571428559183674
+Accuracy: 0.8666666660888889
+F-1 score: 0.8571428509183675

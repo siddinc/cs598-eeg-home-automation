@@ -12,11 +12,38 @@ import glob
 import pandas as pd
 import numpy as np
 
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter,AutoMinorLocator
+import matplotlib as mpl
+import json
+from sklearn.metrics import roc_curve, auc
+from numpy import interp
+from itertools import cycle
+plt.style.use('../fig.mplstyle')
+
 
 def read_dataset(dst_path):
     dataset = glob.glob(dst_path)
     return dataset
 
+
+def plot_custom_roc(y_test, preds):
+  plt.figure(figsize=[10,8])
+  fpr, tpr, _ = roc_curve(y_test, preds)
+  roc_auc = auc(fpr, tpr)
+  lw = 2
+  plt.plot(fpr, tpr, color='darkorange',
+  lw=lw, label='ROC curve (area = %0.2f)' % roc_auc)
+  plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+  plt.xlim([0.0, 1.0])
+  plt.ylim([0.0, 1.05])
+  plt.xlabel('False Positive Rate')
+  plt.ylabel('True Positive Rate')
+  plt.title('Receiver operating characteristic example')
+  plt.legend(loc="lower right")
+  plt.tight_layout()
+  plt.savefig("../images/RF/RF_roc.png", dpi=300, transparent=True, bbox="tight", pad=0)
+  plt.show()
 
 def plot_confusion_matrix_custom(cm, classes, normalize=False, title='Confusion matrix', cmap='PuBu'):
     import itertools
@@ -43,6 +70,7 @@ def plot_confusion_matrix_custom(cm, classes, normalize=False, title='Confusion 
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
+    plt.savefig("../images/RF/RF_cm.png", dpi=300, transparent=True, bbox="tight", pad=0)
     plt.show()
 
 
@@ -131,7 +159,7 @@ def get_metrics(y_test, y_pred):
 
 
 if __name__ == "__main__":
-    dataset = read_dataset("./cs598-eeg-data/data_v3/*/*")
+    dataset = read_dataset("../cs598-eeg-data/data_v3/*/*")
     ts_batch, ts_gt_labels = read_csv(dataset)
     x_train, x_test, y_train, y_test = train_test_split(np.column_stack(
         (ts_batch[0], ts_batch[1], ts_batch[2], ts_batch[3])), ts_gt_labels, test_size=0.3, random_state=42, shuffle=True)
@@ -139,12 +167,14 @@ if __name__ == "__main__":
     # model = train_model(x_train, y_train)
     
     model = joblib.load(
-        "./models/model_RF_{'rf__max_depth': 38, 'rf__n_estimators': 88}_0.8833333333333332.pkl")
-    # y_pred = test_model(model, x_test, y_test)
-    # get_metrics(y_test, y_pred)
+        "../models/model_RF_{'rf__max_depth': 38, 'rf__n_estimators': 88}_0.8833333333333332.pkl")
+    y_pred = test_model(model, x_test, y_test)
+    get_metrics(y_test, y_pred)
 
-    # confusion_matrix_output = confusion_matrix(y_test, y_pred)
-    # plot_confusion_matrix_custom(confusion_matrix_output, classes=[
-    #                              'turn_on', 'turn_off'], title='Confusion matrix')
+    confusion_matrix_output = confusion_matrix(y_test, y_pred)
+    plot_confusion_matrix_custom(confusion_matrix_output, classes=[
+                                 'turn_on', 'turn_off'], title='Confusion matrix')
     
-    pred = predict_model(model, x_test[5:9])
+    y_true = [1. if i == "turn_on" else 0. for i in y_test]
+    y_pred = [1. if i == "turn_on" else 0. for i in y_pred]
+    plot_custom_roc(y_true, y_pred)

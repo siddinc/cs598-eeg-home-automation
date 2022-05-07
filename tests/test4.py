@@ -147,7 +147,7 @@ if __name__ == "__main__":
     model = train_model(x_train, y_train)
     y_pred = test_model(model, x_test, y_test)
     acc, f1 = get_metrics(y_test, y_pred)
-    model = joblib.load("./models/model_RF_{}_{}_{}".format(, acc,f1))
+    # model = joblib.load("./models/model_RF_{}_{}_{}".format(, acc,f1))
 
     confusion_matrix_output = confusion_matrix(y_test, y_pred)
     plot_confusion_matrix_custom(confusion_matrix_output, classes=[
